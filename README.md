@@ -11,7 +11,7 @@ Here are the interesting bits of this Truffle box:
 This Truffle Box is designed to run from within your Contract Kit container. If you haven't already, pull the `oasislabs/contract-kit` image from Docker Hub.
 
 1. Launch your Contract Kit container: 
-   * `docker run -v "$PWD":/project --net=host -it oasislabs/contract-kit:latest /bin/bash`
+   * `docker run -v "$PWD":/project -p8545:8545 -p8546:8546 -p8080:8080 -it oasislabs/contract-kit:latest /bin/bash`
    * (If you'd prefer not to use `--net=host`, you can use the `-p` option to forward whichever ports you like).
 
 The remaining steps are meant to be run in a shell inside your new `oasislabs/contract-kit` container.

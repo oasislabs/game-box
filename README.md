@@ -1,79 +1,64 @@
-# Connect Four on Ekiden
-This example project demonstrates how to use the (name??) game framework to build turn-based
-games on Ekiden. The project consists of a handful of Rust dependencies (in the `crates/`
-directory), frontend Javascript (in `src/`) and a small Express server for navigating between
-different game modes.
+# Making Games with Oasis
+This example project demonstrates how to build a turn-based game, Connect Four, on the Oasis testnet. Our framework (inspired by [boardgame.io](https://github.com/nicolodavis/boardgame.io) lets you define a core set of game rules in Rust that can be run locally for in-browser testing, then deployed the Oasis testnet for live games, all without needing to touch WebAssembly or web3 (though under-the-hood we use both).
 
-This implementation contains an example Bot, the FirstMoveBot, which plays the first valid move
-it discovers. The different game modes are described below.
+Here are the interesting bits of this Truffle box:
+1. `core/game` is where your game logic is defined. This `core` module is imported into a browser-compatible WebAssembly module in `core/client`, and an Oasis-compatible smart contract in `contracts/server`.
+2. `contracts/server` is where you smart contract is defined. It imports your core game logic and creates a game server contract that manages game instances running on the Oasis testnet.
+3. `src` is where your frontend code is defined. You should only need to edit `src/components/board.js` and `src/components/board.css` to create new games.
+4. `scripts` contains helper scripts to get you started. These are described in more detail below.
 
 ## Installation
+This Truffle Box is designed to run from within your Contract Kit container. If you haven't already, pull the `oasislabs/contract-kit` image from Docker Hub.
 
-### Node Dependencies
-Node dependency installation is handled by `npm`. The best way to install `node` and `npm` is
-through `nvm`:
-1. Install NVM using the instructions [here](https://github.com/creationix/nvm)
-2. `npm install`
+1. Launch your Contract Kit container: `docker run --net=host -it oasislabs/contract-kit:latest /bin/bash`
+   (If you'd prefer not to use `--net=host`, you can use the `-p` option to forward whichever ports you like).
 
-### Rust/Cargo Dependencies
-In order to build the Rust dependencies, ensure that Rust/Cargo is installed locally with the
-following toolchains and targets:
-1. `rustup install nightly-2018-07-16`
-2. `rustup target add wasm32-unknown-unknown`
-3. `rustup default nightly-2018-07-16`
+The remaining steps are meant to be run in a shell inside your new `oasislabs/contract-kit` container.
+2. Install `wasm-bindgen`: `cargo install wasm-bindgen-cli` (this can take some time).
+3. Unbox this repo: `truffle unbox oasis-game-framework/game-box`
 
-Additionally, you must install `wasm-utils`:
-1. `git clone https://github.com/oasislabs/wasm-utils`
-2. `cd wasm-utils && git checkout ekiden`
-3. `cargo install --path ./cli --bin wasm-build --force`
+### Specifying credentials
+If you want to deploy on Oasis, make sure your mnemonic is defined in `secrets.json`. This file is not tracked by your repo, but it's imported by Truffle during migration and frontend compilation. The default Contract Kit mnemonic is already there, ready to use.
 
-## Building
-All build steps are handled with `npm` scripts:
+## Creating your game
+Once this example has been unboxed, you're ready to start building your game. For more details about the architecture of the game framework, see (insert detailed docs link here).
 
-To build the Rust dependencies:
-`npm run build:crates`
+In most cases, the only files you'll need to edit are `core/game/src/lib.rs` and `src/components/board.js` -- everything else should be done for you.
 
-To build the frontend JS:
-`npm run build:frontend`
+## Building + Migrating
+Building is separated into three stages, each with a corresponding build script. From the repo root:
+1. Building Rust dependencies: `./scripts/build-crates.sh`
+2. Migrate your contracts onto a testnet: `truffle migrate --network (your network)`
+3. Build frontend components: `truffle exec ./scripts/build-frontend.js --network (your network)`
 
-To build both (this is done automatically when you start the game server):
-`npm run build`
+It's important that (3) always be performed after (2), and with `truffle exec`, because it depends on the address of your deployed contract, which Truffle automatically determines.
 
-## Quick Demo
-1. Follow all build steps.
-2. Copy your Metamask account key to the clipboard.
-3. `export ENV=(test|staging|prod)`
-4. `export ACCOUNT_KEY=(your private key)`
-5. `npm run demo:player-vs-bot -- --player-key (your public key)`
+Once everything is built and migrated, you're ready to play!
 
-## Game Modes
-This demo currently contains the following game modes:
+## Playing
+This box currently contains the following game modes:
 1. Singleplayer: Two boards are rendered on the same screen, and a single user makes moves for
    both. This is useful for debugging your core game logic.
 2. Two Player (On-Chain): Production time! This game mode allows for multiple players, or bots,
-   to compete using a game contract running on the Ekiden platform.
+   to compete using a game contract running on Oasis.
 
 ### Singleplayer
 To debug your game in singleplayer mode, first complete the installation steps above, then perform
 the following steps:
 1. `npm start`
-2. Navigate to `localhost:8080/singleplayer` in your browser
+2. Navigate to `localhost:8080/singleplayer` in your browser (or whichever port you've chosen to use)
 
 This mode launches a local game server on port 8080 (note: this is an HTTP server, not an Ekiden 
 gateway -- there is no blockchain involved in this game mode).
 
-### Two Player with Bot
-To play a complete end-to-end game, with the FirstMoveBot, on-chain, there are a few more steps:
-1. Make sure that the testnet of your choosing is specified in one of the `config/(mode).json`
-   files.
-1. Ensure that you have a funded account on this testnet, and that you're logged into this account
-   in Metamask. Copy your account key to your clipboard.
-3. In one shell, run `npm start`
-4. In another shell, run:
-    1. `ENV=(test|staging|prod) ACCOUNT_KEY=(your account key) npm run deploy:server`
-  
-      This command will generate a server address which is used both in the following command,
-      and in your URL path.
-      
-    2. `ENV=(test|staging|prod) ACCOUNT_KEY=(your account key) npm run deploy:bot -- --server=(server address) --player-id=(bot's player ID, 1 or 2)`
-4. Navigate to `localhost:8080/multiplayer/(server address)/(your player ID)`
+### Two Player
+To play a complete end-to-end, on-chain game with a friend there are a few more steps:
+1. Create a new game on the testnet: `truffle exec ./scripts/create.js --network (your network) --players (address1),(address2)...`
+   (The addresses you list will be assigned player IDs in order, so `address1` becomes Player 1, and so on. Make sure these addresses have already been funded!)
+ 2. `npm start`
+ 3.  Navigate to `localhost:8080/multiplayer/(game id)`
+ 
+If your players are using different computers, make sure that *both* the web server *and* the testnet are accessible to all parties -- this might require updating the networking configuration in the `config` section of `truffle-config.js`.
+
+If you're using the Oasis testnet, you will not need to update any networking configuration.
+

@@ -36,8 +36,3 @@ td.active {
 td.active:hover {
   background: #eeffff;
 }
-
-.svg-container {
-  width: 75px;
-  height: 75px;
-}

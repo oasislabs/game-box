@@ -22,25 +22,25 @@ class Board extends React.Component {
     isMultiplayer: PropTypes.bool,
   };
 
-  getCoords (id) {
-    return id.split('-').map(n => +n)
-  }
-
-  onClick = (row, col) => {
-    console.log('CLICKING:', row, col)
-    if (this.isActive(row, col)) {
-      this.props.moves.click_slot(col)
+  onClick = id => {
+    if (this.isActive(id)) {
+      this.props.moves.click_cell(id)
     }
   };
 
-  isActive(row, col) {
+  isActive(id) {
     let ctx = this.props.ctx
     let playerId = this.props.playerID
     let myTurn = playerId && (
       ctx.current_player === playerId ||
       (ctx.active_players && ctx.active_players.indexOf(playerId) !== -1)
     )
-    return myTurn && this.props.G.grid[row][col] === -1
+    return myTurn && this.props.G.cells[id] === -1
+  }
+
+  format (cellValue) {
+    if (cellValue === -1) return '';
+    return cellValue;
   }
 
   getVictoryInfo () {
@@ -57,47 +57,44 @@ class Board extends React.Component {
       victoryInfo.winner = <div className={color} id="winner">{text}</div>;
       victoryInfo.color = color
       victoryInfo.cells = new Set(gameover.winning_cells)
+      console.log('VICTORY INFO:', victoryInfo)
       return victoryInfo
     }
     return null
   }
 
   getCellClass (victoryInfo, id) {
-    let cellClass = this.isActive(...this.getCoords(id)) ? 'active' : ''
+    let cellClass = this.isActive(id) ? 'active' : ''
     if (victoryInfo && victoryInfo.cells.has(id)) {
       cellClass += ` bg-${victoryInfo.color} white`
     }
     return cellClass
   }
 
-  renderPlayer (playerId) {
-    if (playerId == -1) return ''
-    let color = playerId === 1 ? 'red' : 'blue'
-    return (
-      <div className="svg-container">
-        <svg viewBox="0 0 100 100">
-          <circle cx="50%" cy="50%" fill={color} r="30" />
-        </svg>
-      </div>
-    );
-  }
-
-  render() { let victoryInfo = this.getVictoryInfo() 
+  render() {
+    let victoryInfo = this.getVictoryInfo() 
     let tbody = [];
-    for (let i = 5; i >= 0; i--) {
+    for (let i = 0; i < 3; i++) {
       let cells = [];
 
-      for (let j = 0; j < 7; j++) {
-        const id = `${i}-${j}`;
+      for (let j = 0; j < 3; j++) {
+        const id = 3 * i + j;
 
-        let cellPlayer = this.props.G.grid[i][j]
-        let cellValue = this.renderPlayer(cellPlayer)
+        let cellValue = '';
+        switch (this.props.G.cells[id]) {
+            case 1:
+                cellValue = 'X';
+                break;
+            case 2:
+                cellValue = "O";
+                break;
+        }
 
         cells.push(
           <td
             key={id}
             className={this.getCellClass(victoryInfo, id)}
-            onClick={() => this.onClick(...this.getCoords(id))}
+            onClick={() => this.onClick(id)}
           >
             {cellValue}
           </td>

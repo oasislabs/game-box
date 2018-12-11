@@ -1,5 +1,5 @@
 {
   "hooks": {
-    "post-unpack": "npm install"
+    "post-unpack": "npm install && bash scripts/unbox-hook.sh"
   }
 }

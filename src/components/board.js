@@ -8,7 +8,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { GameInfo } from 'game-components';
+import { GameInfo } from 'oasis-game-components';
 import './board.css';
 
 class Board extends React.Component {

@@ -49,7 +49,7 @@ This box currently contains the following game modes:
 ### Singleplayer
 To debug your game in singleplayer mode, first complete the installation steps above, then perform
 the following steps:
-1. `npm start`
+1. `npm start` (you can do this in another shell)
 2. Navigate to `localhost:8080/singleplayer` in your browser (or whichever port you've chosen to use)
 
 This mode launches a local game server on port 8080 (note: this is an HTTP server, not an Ekiden 
@@ -59,7 +59,7 @@ gateway -- there is no blockchain involved in this game mode).
 To play a complete end-to-end, on-chain game with friends, there are a few more steps:
 1. Create a new game on the testnet: `truffle exec ./scripts/create.js --network (your network) --players (address1),(address2)...`
    * (The addresses you list will be assigned player IDs in order, so `address1` becomes Player 1, and so on. Make sure these addresses have already been funded!)
- 2. `npm start`
+ 2. `npm start` (you can do this in another shell)
  3.  Navigate to `localhost:8080/multiplayer/(game id)`
  
 If your players are using different computers, make sure that *both* the web server *and* the testnet are accessible to all parties -- this might require updating the networking configuration in the `config` section of `truffle-config.js`.

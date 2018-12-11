@@ -149,6 +149,8 @@ Here's a complete list of available flow methods. For complete signatures, take 
 8. `allowed_moves` - List the move *types* (i.e. "click_cell") that the given player is allowed to make. This does *not* enumerate all possible moves.
 9. `optimistic_update` - Should a given game event be executed client-side and on-chain concurrently? In perfect-information games, this can give latency benefits.
 
+You're free to implement as few or as many of these as you like. In the future, we'll be adding more opinionated flow methods to make it easier to make more complicated games (we currently only have a small subset of those available in boardgame.io, for example).
+
 ## Building + Migrating
 Building is separated into three stages, each with a corresponding build script. From the repo root:
 1. Build Rust dependencies: `./scripts/build-crates.sh`

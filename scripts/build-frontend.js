@@ -3,7 +3,6 @@ const minimist = require('minimist')
 
 let args = minimist(process.argv.slice(2))
 let network = args.network || 'development'
-console.log('NETWORK:', network)
 
 module.exports = function (cb) {
   console.log('Building the webpack bundle...')

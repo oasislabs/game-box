@@ -12,7 +12,7 @@ const config = {
   development: {
     mnemonic: secrets.mnemonics.development,
     endpoint: 'http://localhost:8545',
-    wsEndpoint: 'ws://192.168.86.43:8546'
+    wsEndpoint: 'http://localhost:8546'
   }
 }
 

@@ -3,7 +3,7 @@ This example project demonstrates how to build a turn-based game, Connect Four, 
 
 Here are the interesting bits of this Truffle box:
 1. `core/game` is where your game logic is defined. This `core` module is imported into a browser-compatible WebAssembly module in `core/client`, and an Oasis-compatible smart contract in `contracts/server`.
-2. `contracts/server` is where you smart contract is defined. It imports your core game logic and creates a game server contract that manages game instances running on the Oasis testnet.
+2. `contracts/server` is where your smart contract is defined. It imports your core game logic and creates a game server contract that manages game instances running on the Oasis testnet.
 3. `src` is where your frontend code is defined. You should only need to edit `src/components/board.js` and `src/components/board.css` to create new games.
 4. `scripts` contains helper scripts to get you started. These are described in more detail below.
 

@@ -16,6 +16,7 @@ This Truffle Box is designed to run from within your Contract Kit container. If 
 
 The remaining steps are meant to be run in a shell inside your new `oasislabs/contract-kit` container.
 1. Install `wasm-bindgen`: `cargo install wasm-bindgen-cli` (this can take some time).
+2. Create a directory for your new project: `mkdir (project name) && cd (project name)`
 2. Unbox this repo: `truffle unbox oasis-game-framework/game-box`
 3. (optionally) Start a local Parity instance for debugging: `./scripts/start-parity.sh`
    * (Note: This will launch Parity with very loose network settings -- feel free to restrict those to localhost if you don't want to test with other machines on your local network)

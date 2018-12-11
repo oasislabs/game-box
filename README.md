@@ -14,8 +14,8 @@ This Truffle Box is designed to run from within your Contract Kit container. If 
    (If you'd prefer not to use `--net=host`, you can use the `-p` option to forward whichever ports you like).
 
 The remaining steps are meant to be run in a shell inside your new `oasislabs/contract-kit` container.
-2. Install `wasm-bindgen`: `cargo install wasm-bindgen-cli` (this can take some time).
-3. Unbox this repo: `truffle unbox oasis-game-framework/game-box`
+1. Install `wasm-bindgen`: `cargo install wasm-bindgen-cli` (this can take some time).
+2. Unbox this repo: `truffle unbox oasis-game-framework/game-box`
 
 ### Specifying credentials
 If you want to deploy on Oasis, make sure your mnemonic is defined in `secrets.json`. This file is not tracked by your repo, but it's imported by Truffle during migration and frontend compilation. The default Contract Kit mnemonic is already there, ready to use.

@@ -11,11 +11,13 @@ Here are the interesting bits of this Truffle box:
 This Truffle Box is designed to run from within your Contract Kit container. If you haven't already, pull the `oasislabs/contract-kit` image from Docker Hub.
 
 1. Launch your Contract Kit container: `docker run --net=host -it oasislabs/contract-kit:latest /bin/bash`
-   (If you'd prefer not to use `--net=host`, you can use the `-p` option to forward whichever ports you like).
+   * (If you'd prefer not to use `--net=host`, you can use the `-p` option to forward whichever ports you like).
 
 The remaining steps are meant to be run in a shell inside your new `oasislabs/contract-kit` container.
 1. Install `wasm-bindgen`: `cargo install wasm-bindgen-cli` (this can take some time).
 2. Unbox this repo: `truffle unbox oasis-game-framework/game-box`
+3. (optionally) Start a local Parity instance for debugging: `./scripts/start-parity.sh`
+   * (Note: This will launch Parity with very loose network settings -- feel free to restrict those to localhost if you don't want to test with other machines on your local network)
 
 ### Specifying credentials
 If you want to deploy on Oasis, make sure your mnemonic is defined in `secrets.json`. This file is not tracked by your repo, but it's imported by Truffle during migration and frontend compilation. The default Contract Kit mnemonic is already there, ready to use.
@@ -54,7 +56,7 @@ gateway -- there is no blockchain involved in this game mode).
 ### Two Player
 To play a complete end-to-end, on-chain game with a friend there are a few more steps:
 1. Create a new game on the testnet: `truffle exec ./scripts/create.js --network (your network) --players (address1),(address2)...`
-   (The addresses you list will be assigned player IDs in order, so `address1` becomes Player 1, and so on. Make sure these addresses have already been funded!)
+   * (The addresses you list will be assigned player IDs in order, so `address1` becomes Player 1, and so on. Make sure these addresses have already been funded!)
  2. `npm start`
  3.  Navigate to `localhost:8080/multiplayer/(game id)`
  

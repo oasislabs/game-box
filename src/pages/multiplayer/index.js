@@ -24,7 +24,6 @@ import Web3 from 'web3'
 import Board from '../../components/board';
 
 const Multiplayer = () => {
-
   // TODO: Better way to get game parameters.
   let splitUrl = window.location.pathname.split('/');
   let gameId = +splitUrl[2];
@@ -33,15 +32,20 @@ const Multiplayer = () => {
   // The all-caps fields are injected by Webpack during the build.
   let eventsWeb3 = new Web3(new Web3.providers.WebsocketProvider(WS_ENDPOINT));
 
-  let server = new GameServer(CONTRACT_ADDRESS, {
-    web3: new Web3(web3.currentProvider),
-    eventsWeb3: eventsWeb3
-  });
-  let game = new Game(server, gameId);
+  let createGame = async function () {
+    window.web3 = new Web3(ethereum);
+    await ethereum.enable();
+    let server = new GameServer(CONTRACT_ADDRESS, {
+      web3: web3,
+      eventsWeb3: eventsWeb3
+    });
+    let game = new Game(server, gameId);
+    return game.ready();
+  }
 
   let proxyPromise = Promise.all([
     bindingsPromise,
-    game.ready()
+    createGame()
   ]).then(async ([bindings, game]) => {
     let builder = createProxyBuilder(bindings);
     let proxy = await builder([1, 2], game, game.playerId).ready();

@@ -53,6 +53,9 @@ module.exports = function (web3, network, artifacts) {
       })),
       new webpack.LoaderOptionsPlugin({
         debug: true
+      }),
+      new HtmlWebpackPlugin({
+        title: 'Oasis Game'
       })
     ],
     devtool: 'cheap-eval-source-map',

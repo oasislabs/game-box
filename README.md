@@ -71,7 +71,7 @@ fn click_cell(state: &mut UserState<State>, args: &Option<Value>)
 }
 ```
 
-Once your inputs are parsed, you can then mutate the state you're given with whatever changes are necessary. In Tic-Tac-Toe, we update a cell with the player ID of the active player:
+Once your inputs are parsed, you can then mutate the state you're given with whatever changes are necessary. In Tic-Tac-Toe, we update a cell with the player ID of the active player. Here's how all the above steps come together to make a complete move method.
 ```
 fn click_cell(state: &mut UserState<State>, args: &Option<Value>)
             -> Result<(), Box<Error>> {

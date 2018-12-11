@@ -1,5 +1,5 @@
 # Making Games with Oasis
-This example project demonstrates how to build a turn-based game, Connect Four, on the Oasis testnet. Our framework (inspired by [boardgame.io](https://github.com/nicolodavis/boardgame.io) lets you define a core set of game rules in Rust that can be run locally for in-browser testing, then deployed the Oasis testnet for live games, all without needing to touch WebAssembly or web3 (though under-the-hood we use both).
+This example project demonstrates how to build a turn-based game, Tic-Tac-Toe, on the Oasis testnet. Our framework (inspired by [boardgame.io](https://github.com/nicolodavis/boardgame.io) lets you define a core set of game rules in Rust that can be run locally for in-browser testing, then deployed the Oasis testnet for live games, all without needing to touch WebAssembly or web3 (though under-the-hood we use both).
 
 Here are the interesting bits of this Truffle box:
 1. `core/game` is where your game logic is defined. This `core` module is imported into a browser-compatible WebAssembly module in `core/client`, and an Oasis-compatible smart contract in `contracts/server`.
@@ -95,8 +95,59 @@ fn click_cell(state: &mut UserState<State>, args: &Option<Value>)
 ```
 
 #### Flow
+Flow methods are more constained than move methods. The game engine exposes a handful of hooks that you can implement inside your Flow trait to control how a game evolves over time. As an example, in Tic-Tac-Toe, there are only three components to the game flow:
+1. The initial state should be an empty grid.
+2. Turns should alternate.
+2. When a victory condition is met, the game should end.
 
+We express those components in the following Flow trait:
+```rs
+#[flow]
+trait Flow {
+    fn initial_state(&self) -> State {
+        State {
+            cells: [-1; 9]
+        }
+    }
 
+    fn end_turn_if(&self, _: &UserState<State>) -> bool {
+        // End the turn after every move.
+        true
+    }
+
+    fn end_game_if(&self, state: &UserState<State>) -> Option<(Option<Score>, Value)> {
+        // If there's a three-in-a-row, then a player has won.
+        if let Some(pos) = is_victory(state.g.cells) {
+            let winner = state.ctx.current_player;
+            return Some((Some(Score::Win(winner)), json!({
+                "winner": winner,
+                "winning_cells": pos
+            })));
+        }
+        
+        // If all the cells are filled, then it's a draw.
+        if state.g.cells.into_iter().all(|c| *c != -1) {
+            return Some((Some(Score::Draw), json!({
+                "draw": true
+            })));
+        }
+        None
+    }
+}
+```
+
+The `end_game_if` method has a trickier interface, since it's responsible for assigning a value to the final game state (which are be useful for bots, more docs forthcoming). Additionally, the final game state is entirely user-defined, and thus must also be stored as a `Value` (an arbitrary JSON object).
+
+Here's a complete list of available flow methods. For complete signatures, take a look [here](https://github.com/oasis-game-framework/oasis-game-framework/blob/1.0.0-alpha/engine/src/flow.rs):
+1. `initial_state` - Generates the first game state, before any moves have been made.
+2. `end_turn_if` (default `true`) - Given a game state, returns true if the active player should transition to the next player in the `turn_order`
+3. `end_game_if` - Given a game state, has the game completed? If so, return a `gameover` value.
+4. `on_turn_begin` - Gives you the option to update the state at the beginning of every turn.
+5. `on_turn_end` - Gives you the option to update the state at the end of every turn.
+6. `on_move` - Gives you the option to update the state after every move.
+7. `can_make_move` - Is the given player allowed to make a move? This is useful for games where many players can make moves at the same time (i.e. draw phases of card games).
+8. `allowed_moves` - List the move *types* (i.e. "click_cell") that the given player is allowed to make. This does *not* enumerate all possible moves.
+9. `optimistic_update` - Should a given game event be executed client-side and on-chain concurrently? In perfect-information games, this can give latency benefits.
 
 ## Building + Migrating
 Building is separated into three stages, each with a corresponding build script. From the repo root:

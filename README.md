@@ -28,6 +28,76 @@ Once this example has been unboxed, you're ready to start building your game. Fo
 
 In most cases, the only files you'll need to edit are `core/game/src/lib.rs` and `src/components/board.js` -- everything else should be done for you.
 
+### API
+Our APIs let you describe broad types of turn-based games with little more than a state description and a handful of flow functions. A complete game definition for our example game (Tic-Tac-Toe) can be found in [core/game/src/lib](core/game/src/lib). Games are comprised of the following pieces:
+1. *State*: Your game state can be any JSON-serializable data structure, and is defined as a Rust struct.
+2. *Moves*: Your moves are defined in a Rust trait, wrapped by our `#[moves]` macro. A move is a function that takes in a state and an action, and produces a new state.
+3. *Flow*: Flow methods describe how your game progresses over time. You can define hooks `end_game_if`, which take your game state as an input, and tell the game engine if the game is finished. See below for a list of the available flow methods.
+
+#### Moves
+Move methods are entirely user-defined, and you can have as many as you like. For Tic-Tac-Toe, there is only one possible move, and so our Moves trait looks like:
+```rs
+#[moves]
+trait Moves {
+  fn click_cell(cell: &mut UserState<State>, args: &Option<Value>) -> Result<...> {
+    ...
+  }
+}
+```
+The game framework takes these move definitions and automatically creates corresponding Javascript methods that you can call from within your client-side JS code as follows:
+```js
+class Board extends React.Component {
+  ...
+  onClick = id => {
+    if (this.isActive(id)) {
+      this.props.moves.click_cell(id)
+    }
+  };
+  ...
+}
+```
+
+Since Rust is statically-typed, and move methods are user-defined, we cannot know in advance how many arguments you'll need to pass from JS into your move methods. For this reason, all move methods take an optional, untyped, JSON array of arguments as input (`args: &Option<Value>`). It's up to you to complete the deserialization step inside your own code, so you can assign a user-defined type to these inputs, i.e:
+```
+fn click_cell(state: &mut UserState<State>, args: &Option<Value>)
+            -> Result<(), Box<Error>> {
+    if let Some(value) = args {
+        let id = value.as_array()
+            .and_then(|arr| arr.get(0))
+            .and_then(|cell| cell.as_u64())
+            .and_then(|cell| Some(cell as usize))
+            .ok_or(Box::new(Errors::InvalidCell))?;
+   ...
+}
+```
+
+Once your inputs are parsed, you can then mutate the state you're given with whatever changes are necessary. In Tic-Tac-Toe, we update a cell with the player ID of the active player:
+```
+fn click_cell(state: &mut UserState<State>, args: &Option<Value>)
+            -> Result<(), Box<Error>> {
+    if let Some(value) = args {
+        let id = value.as_array()
+            .and_then(|arr| arr.get(0))
+            .and_then(|cell| cell.as_u64())
+            .and_then(|cell| Some(cell as usize))
+            .ok_or(Box::new(Errors::InvalidCell))?;
+        match state.g.cells[id] {
+            -1 => {
+                state.g.cells[id] = state.ctx.current_player as i32;
+                Ok(())
+            },
+            _ => Err(Box::new(Errors::InvalidCell))
+        }
+    } else {
+        return Err(Box::new(Errors::InvalidCell))
+    }
+}
+```
+
+#### Flow
+
+
+
 ## Building + Migrating
 Building is separated into three stages, each with a corresponding build script. From the repo root:
 1. Build Rust dependencies: `./scripts/build-crates.sh`

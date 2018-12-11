@@ -31,8 +31,8 @@ In most cases, the only files you'll need to edit are `core/game/src/lib.rs` and
 
 ## Building + Migrating
 Building is separated into three stages, each with a corresponding build script. From the repo root:
-1. Building Rust dependencies: `./scripts/build-crates.sh`
-2. Migrate your contracts onto a testnet: `truffle migrate --network (your network)`
+1. Build Rust dependencies: `./scripts/build-crates.sh`
+2. Migrate contracts onto a testnet: `truffle migrate --network (your network)`
 3. Build frontend components: `truffle exec ./scripts/build-frontend.js --network (your network)`
 
 It's important that (3) always be performed after (2), and with `truffle exec`, because it depends on the address of your deployed contract, which Truffle automatically determines.

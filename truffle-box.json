@@ -1,5 +1,5 @@
 {
   "hooks": {
-    "post-unpack": "npm install && cargo install wasm-bindgen-cli"
+    "post-unpack": "npm install"
   }
 }

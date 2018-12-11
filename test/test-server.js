@@ -1,6 +1,6 @@
 const Web3 = require('web3');
 const minimist = require('minimist')
-const { GameServer, Game } = require('game-client')
+const { GameServer, Game } = require('oasis-game-client')
 
 const GameServerContract = artifacts.require('GameServerContract')
 const web3 = new Web3(GameServerContract.web3.currentProvider)

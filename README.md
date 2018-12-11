@@ -55,8 +55,8 @@ the following steps:
 This mode launches a local game server on port 8080 (note: this is an HTTP server, not an Ekiden 
 gateway -- there is no blockchain involved in this game mode).
 
-### Two Player
-To play a complete end-to-end, on-chain game with a friend there are a few more steps:
+### Multiplayer
+To play a complete end-to-end, on-chain game with friends, there are a few more steps:
 1. Create a new game on the testnet: `truffle exec ./scripts/create.js --network (your network) --players (address1),(address2)...`
    * (The addresses you list will be assigned player IDs in order, so `address1` becomes Player 1, and so on. Make sure these addresses have already been funded!)
  2. `npm start`

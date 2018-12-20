@@ -19,5 +19,5 @@ app.get('/multiplayer/:gameId', (req, res) => {
   res.sendFile('multiplayer.html', { root: './dist' })
 })
 
-app.listen(PORT, () => console.log(`Tic-tac-toe server listening on ${PORT}`))
+app.listen(PORT, () => console.log(`Game server listening on ${PORT}`))
 

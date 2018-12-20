@@ -24,12 +24,12 @@ The remaining steps are meant to be run in a shell inside your new `oasislabs/co
 If you want to deploy on Oasis, make sure your mnemonic is defined in `secrets.json`. This file is not tracked by your repo, but it's imported by Truffle during migration and frontend compilation. The default Contract Kit mnemonic is already there, ready to use.
 
 ## Creating your game
-Once this example has been unboxed, you're ready to start building your game. For more details about the architecture of the game framework, see (insert detailed docs link here).
+Once this example has been unboxed, you're ready to start building your game. This section is a crash-course for getting started quickly; for a thorough overview the architecture of the game framework, see __(insert detailed docs link here)__.
 
-In most cases, the only files you'll need to edit are `core/game/src/lib.rs` and `src/components/board.js` -- everything else should be done for you.
+TL;DR: In most cases, the only files you'll need to edit are `core/game/src/lib.rs` (with your move and flow functions) and `src/components/board.js` (with your game UI) -- everything else should be done for you!
 
 ### API
-Our APIs let you describe broad types of turn-based games with little more than a state description and a handful of flow functions. A complete game definition for our example game (Tic-Tac-Toe) can be found in [core/game/src/lib](core/game/src/lib). Games are comprised of the following pieces:
+Our APIs let you describe broad types of turn-based games with little more than a state description, and a handful of flow functions. A complete game definition for our example game (Tic-Tac-Toe) can be found in [core/game/src/lib](core/game/src/lib). Games are comprised of the following pieces:
 1. *State*: Your game state can be any JSON-serializable data structure, and is defined as a Rust struct.
 2. *Moves*: Your moves are defined in a Rust trait, wrapped by our `#[moves]` macro. A move is a function that takes in a state and an action, and produces a new state.
 3. *Flow*: Flow methods describe how your game progresses over time. You can define hooks `end_game_if`, which take your game state as an input, and tell the game engine if the game is finished. See below for a list of the available flow methods.

@@ -5,4 +5,4 @@ chmod +x core/client/build.sh
 
 # Create and initialize the git repo (the .gitignore already exists).
 git init
-git add *
+git add * .babelrc .gitignore

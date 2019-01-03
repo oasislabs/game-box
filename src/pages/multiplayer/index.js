@@ -18,7 +18,8 @@ import createProxyBuilder from 'oasis-game-client-proxy';
 // Multiplayer game imports.
 import { GameWrapper, Client } from 'oasis-game-components';
 import { Game, GameServer } from 'oasis-game-client';
-import Web3 from 'web3'
+import Web3 from 'web3';
+import Web3c from 'web3c';
 
 // Game component imports.
 import Board from '../../components/board';
@@ -30,14 +31,15 @@ const Multiplayer = () => {
 
   // TODO: Extract this into a separate JS wallet manager.
   // The all-caps fields are injected by Webpack during the build.
-  let eventsWeb3 = new Web3(new Web3.providers.WebsocketProvider(WS_ENDPOINT));
+  let eventsWeb3c = new Web3(new Web3.providers.WebsocketProvider(WS_ENDPOINT));
 
   let createGame = async function () {
-    window.web3 = new Web3(ethereum);
+    let web3 = new Web3(ethereum);
     await ethereum.enable();
+    let web3c = new Web3c(ethereum);
     let server = new GameServer(CONTRACT_ADDRESS, {
-      web3: web3,
-      eventsWeb3: eventsWeb3
+      web3c,
+      eventsWeb3c
     });
     let game = new Game(server, gameId);
     return game.ready();

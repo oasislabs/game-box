@@ -1,5 +1,5 @@
 {
-  "name": "ekiden-connect-four",
+  "name": "oasis-tic-tac-toe",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -46,6 +46,7 @@
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
     "web3": "^1.0.0-beta.35",
+    "web3c": "^1.0.2",
     "yargs": "^12.0.2",
     "oasis-game-client": "git+https://github.com/oasis-game-framework/oasis-game-client.git#1.0.0-alpha"
   }

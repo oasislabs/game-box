@@ -1,4 +1,5 @@
 const Web3 = require('web3')
+const Web3c = require('web3c')
 const chalk = require('chalk')
 const ora = require('ora')
 const minimist = require('minimist')
@@ -11,8 +12,8 @@ let args = minimist(process.argv.slice(2))
 module.exports = async function (cb) {
   let network = args.network || 'development'
   let networkConfig = truffleConfig.config[network]
-  let web3 = new Web3(truffleConfig.networks[network].provider())
-  let eventsWeb3 = new Web3(new Web3.providers.WebsocketProvider(networkConfig.wsEndpoint))
+  let web3c = new Web3c(truffleConfig.networks[network].provider())
+  let eventsWeb3c = new Web3c(new Web3.providers.WebsocketProvider(networkConfig.wsEndpoint))
 
   let serverAddress = args.server || artifacts.require('GameServerContract').address
   let players = args.players.split(',')
@@ -23,8 +24,8 @@ module.exports = async function (cb) {
   }).start()
 
   let server = new GameServer(serverAddress, {
-    web3,
-    eventsWeb3,
+    web3c,
+    eventsWeb3c,
     account: 0
   })
 

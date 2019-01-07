@@ -19,9 +19,9 @@ impl ServerFactory {
 
 #[owasm_abi_derive::contract]
 trait GameServerContract {
-    fn create(&mut self, _players: Vec<u8>) {
+    fn create(&mut self, _players: Vec<u8>, _seed: u64) {
         let mut server = ServerFactory::create();
-        let id = server.create(_players.clone());
+        let id = server.create(_players.clone(), _seed);
         self.NewGame(id, _players);
     }
 

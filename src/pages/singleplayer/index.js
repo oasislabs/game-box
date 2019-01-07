@@ -22,11 +22,12 @@ const Singleplayer = () => {
   let proxiesPromise = async (resolve, reject) => {
     let bindings = await bindingsPromise;
     let proxyBuilder = createProxyBuilder(bindings);
-
+    let seed1 = Math.floor(Math.random() * 100000);
+    let seed2 = Math.floor(Math.random() * 100000);
     return Promise.all([
-      proxyBuilder([1,2], null, 1).ready(),
-      proxyBuilder([1,2], null, 2).ready()
-    ])
+      proxyBuilder([1,2], null, 1, seed1).ready(),
+      proxyBuilder([1,2], null, 2, seed2).ready()
+    ]);
   }
 
   return (

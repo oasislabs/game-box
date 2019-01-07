@@ -50,7 +50,9 @@ const Multiplayer = () => {
     createGame()
   ]).then(async ([bindings, game]) => {
     let builder = createProxyBuilder(bindings);
-    let proxy = await builder([1, 2], game, game.playerId).ready();
+    // The client-side seed in multiplayer mode does not matter.
+    let seed = Math.floor(Math.random() * 100000);
+    let proxy = await builder([1, 2], game, game.playerId, seed).ready();
     return [proxy, game];
   });
 

@@ -13,10 +13,10 @@ use game_engine::StoreFactory;
 use core::Game;
 
 #[wasm_bindgen]
-pub fn create (player_id: u16, players: Vec<u16>, multiplayer: bool, server: bool) -> Proxy {
+pub fn create (player_id: u16, players: Vec<u16>, multiplayer: bool, server: bool, seed: u64) -> Proxy {
     panic::set_hook(Box::new(console_error_panic_hook::hook));
     let game = Game {};
-    let store = game.create(player_id, players, multiplayer, server);
+    let store = game.create(player_id, players, multiplayer, server, Some(seed as u128));
     create_proxy(store)
 }
 

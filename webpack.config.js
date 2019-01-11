@@ -5,9 +5,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const truffleConfig = require('./truffle-config.js')
 const pages = fs.readdirSync('./src/pages').filter(name => !name.startsWith('.'))
 
-// The number of HD Wallet accounts to inject into the page.
-const NUM_ACCOUNTS = 5
-
 module.exports = function (web3, network, artifacts) {
   let networkConfig = truffleConfig.config[network]
 

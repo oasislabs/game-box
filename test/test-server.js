@@ -1,14 +1,15 @@
-const Web3 = require('web3');
+const Web3 = require('web3')
+const Web3c = require('web3c')
 const minimist = require('minimist')
 const { GameServer, Game } = require('oasis-game-client')
 
 const GameServerContract = artifacts.require('GameServerContract')
-const web3 = new Web3(GameServerContract.web3.currentProvider)
+const web3c = new Web3c(GameServerContract.web3.currentProvider)
 
 const truffleConfig = require('../truffle-config.js')
 let args = minimist(process.argv.slice(2))
 let networkConfig = truffleConfig.config[args.network || 'development']
-let eventsWeb3 = new Web3(new Web3.providers.WebsocketProvider(networkConfig.wsEndpoint))
+let eventsWeb3c = new Web3c(new Web3.providers.WebsocketProvider(networkConfig.wsEndpoint))
 
 async function delay (ms) {
   return new Promise((resolve, reject) => {
@@ -22,8 +23,8 @@ contract('GameServerContract', async (accounts) => {
 
   it('should create a new game', async () => {
     let server = new GameServer(GameServerContract.address, {
-      web3,
-      eventsWeb3,
+      web3c,
+      eventsWeb3c,
       account: 0
     })
     let game = await server.createGame([
@@ -47,13 +48,13 @@ contract('GameServerContract', async (accounts) => {
 
   it('should complete a game', async () => {
     let server1 = new GameServer(GameServerContract.address, {
-      web3,
-      eventsWeb3,
+      web3c,
+      eventsWeb3c,
       account: 0
     })
     let server2 = new GameServer(GameServerContract.address, {
-      web3,
-      eventsWeb3,
+      web3c,
+      eventsWeb3c,
       account: 1
     })
 

@@ -12,8 +12,8 @@ module.exports = function (web3, network, artifacts) {
 
   return {
     entry: pages.reduce((acc, page) => {
-      acc[page] = `./src/pages/${page}/index.js`;
-      return acc;
+      acc[page] = `./src/pages/${page}/index.js`
+      return acc
     }, {}),
     module: {
       rules: [
@@ -26,6 +26,14 @@ module.exports = function (web3, network, artifacts) {
           test: /\.css$/,
           exclude: /node_modules/,
           use: [ 'style-loader', 'css-loader' ]
+        },
+        {
+          test: /\.wasm$/,
+          type: 'javascript/auto',
+          loader: 'file-loader',
+          options: {
+            publicPath: 'dist/'
+          }
         }
       ]
     },

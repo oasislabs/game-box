@@ -57,7 +57,6 @@ class Board extends React.Component {
       victoryInfo.winner = <div className={color} id="winner">{text}</div>;
       victoryInfo.color = color
       victoryInfo.cells = new Set(gameover.winning_cells)
-      console.log('VICTORY INFO:', victoryInfo)
       return victoryInfo
     }
     return null
@@ -116,7 +115,6 @@ class Board extends React.Component {
         <GameInfo winner={victoryInfo ? victoryInfo.winner : null} {...this.props} />
       </div>
     );
-    console.log('RETURNING RENDERED:', rendered)
     return rendered;
   }
 }

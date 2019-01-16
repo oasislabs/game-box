@@ -35,7 +35,6 @@ const Singleplayer = () => {
       // This simplifies local testing.
       let tee = (function (d1, d2) {
         return (action) => {
-          console.log('DISPATCHING TO BOTH PROXIES: action: ', action)
           d1(action);
           d2(action);
         }

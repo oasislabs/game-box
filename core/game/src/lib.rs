@@ -32,6 +32,13 @@ pub type Cells = [i32; 9];
 pub struct State {
     pub cells: Cells
 }
+impl Default for State {
+    fn default() -> Self {
+        State {
+            cells: [-1; 9]
+        }
+    }
+}
 
 fn is_victory (cells: Cells) -> Option<[usize; 3]> {
     let positions: [[usize; 3]; 8] = [

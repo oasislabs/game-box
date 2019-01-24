@@ -48,7 +48,7 @@ const Singleplayer = () => {
         playerId: 1,
         players: [1, 2],
         multiplayer: null,
-        debug: false
+        debug: true
       });
 
       let PlayerTwo = Client({

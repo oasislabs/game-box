@@ -5,15 +5,15 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const truffleConfig = require('./truffle-config.js')
 const pages = fs.readdirSync('./src/pages').filter(name => !name.startsWith('.'))
 
-module.exports = function (web3, network, artifacts) {
+module.exports = function (web3, network, artifacts, confidential) {
   let networkConfig = truffleConfig.config[network]
 
   let contract = artifacts.require('GameServerContract')
 
   return {
     entry: pages.reduce((acc, page) => {
-      acc[page] = `./src/pages/${page}/index.js`
-      return acc
+      acc[page] = `./src/pages/${page}/index.js`;
+      return acc;
     }, {}),
     module: {
       rules: [
@@ -26,15 +26,17 @@ module.exports = function (web3, network, artifacts) {
           test: /\.css$/,
           exclude: /node_modules/,
           use: [ 'style-loader', 'css-loader' ]
-        },
-        {
-          test: /\.wasm$/,
-          type: 'javascript/auto',
-          loader: 'file-loader',
-          options: {
-            publicPath: 'dist/'
-          }
         }
+	      /*
+        {
+	  test: /\.wasm$/,
+	  type: "javascript/auto",
+	  loader: "file-loader",
+	  options: {
+	    publicPath: "dist/"
+	  }
+        }
+	*/
       ]
     },
     resolve: {
@@ -48,7 +50,8 @@ module.exports = function (web3, network, artifacts) {
     plugins: [
       new webpack.DefinePlugin({
         'CONTRACT_ADDRESS': JSON.stringify(contract.address),
-        'WS_ENDPOINT': JSON.stringify(networkConfig.wsEndpoint)
+        'WS_ENDPOINT': JSON.stringify(networkConfig.wsEndpoint),
+        'CONFIDENTIAL_CONTRACT': confidential
       }),
       new webpack.HotModuleReplacementPlugin(),
       ...pages.map(page => new HtmlWebpackPlugin({

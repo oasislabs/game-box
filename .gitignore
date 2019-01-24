@@ -19,3 +19,5 @@ yarn-error.log*
 
 secrets.json
 /.oasis-build
+
+target/

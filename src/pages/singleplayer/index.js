@@ -22,11 +22,10 @@ const Singleplayer = () => {
   let proxiesPromise = async (resolve, reject) => {
     let bindings = await bindingsPromise;
     let proxyBuilder = createProxyBuilder(bindings);
-    let seed1 = Math.floor(Math.random() * 100000);
-    let seed2 = Math.floor(Math.random() * 100000);
+    let seed = Math.floor(Math.random() * 100000);
     return Promise.all([
-      proxyBuilder([1,2], null, 1, seed1).ready(),
-      proxyBuilder([1,2], null, 2, seed2).ready()
+      proxyBuilder([1,2], null, 1, seed).ready(),
+      proxyBuilder([1,2], null, 2, seed).ready()
     ]);
   }
 
@@ -49,7 +48,7 @@ const Singleplayer = () => {
         playerId: 1,
         players: [1, 2],
         multiplayer: null,
-        debug: true
+        debug: false
       });
 
       let PlayerTwo = Client({

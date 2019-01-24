@@ -15,7 +15,7 @@ serde = "1.0.70"
 serde_json = "1.0.24"
 serde_derive = "1.0.70"
 
-# Core game logic dependency
+# Core game logic dependencies
 game-engine = { git = "https://github.com/oasis-game-framework/oasis-game-framework", branch = "1.0.0-alpha" }
 game-contract = { git = "https://github.com/oasis-game-framework/oasis-game-framework", branch = "1.0.0-alpha" }
 core = { path = "../../core/game" }

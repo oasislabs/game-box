@@ -8,7 +8,8 @@ const { Game, GameServer } = require('oasis-game-client')
 const truffleConfig = require('../truffle-config.js')
 
 let args = minimist(process.argv.slice(2), {
-  string: ['bots', 'players']
+  string: ['bots', 'players'],
+  boolean: ['confidential']
 })
 
 module.exports = async function (cb) {
@@ -20,7 +21,7 @@ module.exports = async function (cb) {
   let serverAddress = args.server || artifacts.require('GameServerContract').address
   let players = args.players ? args.players.split(',') : []
   let bots = args.bots ? args.bots.split(',') : []
-  let seed = args.seed || 1
+  let confidential = (args.confidential !== undefined) ? args.confidential : true
 
   let playerArgs = [...players.map(address => {
     return {
@@ -42,11 +43,12 @@ module.exports = async function (cb) {
   let server = new GameServer(serverAddress, {
     web3c,
     eventsWeb3c,
-    account: 0
+    account: 0,
+    confidential
   })
 
   try {
-    let game = await server.createGame(playerArgs, seed)
+    let game = await server.createGame(playerArgs)
     await game.ready()
     spinner.succeed(chalk.green(`Created a new game with ID: ${game.id}`))
   } catch (err) {

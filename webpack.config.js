@@ -26,6 +26,12 @@ module.exports = function (web3, network, artifacts, confidential) {
           test: /\.css$/,
           exclude: /node_modules/,
           use: [ 'style-loader', 'css-loader' ]
+        },
+        {
+          test: /\.(png|svg|jpg|gif)$/,
+          use: [
+           'file-loader'
+          ]
         }
 	      /*
         {

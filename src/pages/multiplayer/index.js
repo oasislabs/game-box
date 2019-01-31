@@ -6,7 +6,6 @@
  * https://opensource.org/licenses/MIT.
  */
 
-// React-specific imports
 import Async from 'react-promise';
 import React from 'react';
 import { render } from 'react-dom';
@@ -22,6 +21,7 @@ import Web3 from 'web3';
 
 // Game component imports.
 import Board from '../../components/board';
+import Logo from '../../assets/logo.svg';
 
 const Multiplayer = () => {
   // TODO: Better way to get game parameters.
@@ -70,21 +70,28 @@ const Multiplayer = () => {
       playerId,
       players: [1, 2],
       multiplayer: game,
-      debug: true
+      debug: false
     });
 
     return (
-      <div style={{ padding: 50 }}>
-        <h1>Battleship</h1>
+      <div className="code flex flex-column w-100 h-100 items-center bg-light-gray">
+        <h1 className="f1 lh-title mb1">Tic Tac Toe</h1>
+        <div class="flex justify-center">
+          <h4 className="pt0 mt3 mr2">with</h4>
+          <img className="h2" src={Logo} />
+        </div>
         <Player />
       </div>
     );
   }
 
   return (
-    <GameWrapper proxyPromise={proxyPromise}>
-      <PlayerComponent />
-    </GameWrapper>
+    <div class="code flex flex-column w-100 h-100 items-center">
+      <GameWrapper proxyPromise={proxyPromise}>
+        <PlayerComponent />
+      </GameWrapper>
+      <h5 class="mt5">Want to build your own game? Go to the <a href="http://docs.oasiscloud.io/en/latest/gaming-sdk">Oasis Devnet</a> to get started.</h5>
+    </div>
   );
 }
 

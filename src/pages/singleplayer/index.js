@@ -15,6 +15,7 @@ import createProxyBuilder from 'oasis-game-client-proxy';
 import { Client } from 'oasis-game-components';
 
 import Board from '../../components/board';
+import Logo from '../../assets/logo.svg';
 
 window.bindingsPromise = bindingsPromise;
 
@@ -57,12 +58,16 @@ const Singleplayer = () => {
         playerId: 2,
         players: [1, 2],
         multiplayer: null,
-        debug: false
+        debug: true
       });
 
       return (
-        <div style={{ padding: 50 }}>
-          <h1>Two Players (Local)</h1>
+        <div className="code flex flex-column w-100 h-100 items-center bg-light-gray">
+          <h1 className="f1 lh-title mb1">Tic Tac Toe</h1>
+          <div class="flex justify-center">
+            <h4 className="pt0 mt3 mr2">with</h4>
+            <img className="h2" src={Logo} />
+          </div>
           <PlayerOne />
           <br/>
           <PlayerTwo />

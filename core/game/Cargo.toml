@@ -14,7 +14,6 @@ game-engine-derive = { git = "https://github.com/oasis-game-framework/oasis-game
 
 [dependencies.rand]
 version = "0.6.4"
-default-features = false
 features = ["wasm-bindgen"]
 
 [lib]

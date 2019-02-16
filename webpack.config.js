@@ -10,8 +10,9 @@ module.exports = function (web3, network, artifacts, confidential) {
 
   try {
     var contract = artifacts.require('GameServerContract')
+    var address = contract.address
   } catch (err) {
-    console.log('err:', err)
+    console.warn('Warning: No network deployment was detected, so only building singleplayer mode.')
   }
 
   let entry = !contract ? { singleplayer : './src/pages/singleplayer/index.js' } : pages.reduce((acc, page) => {
@@ -61,7 +62,7 @@ module.exports = function (web3, network, artifacts, confidential) {
     },
     plugins: [
       new webpack.DefinePlugin({
-        'CONTRACT_ADDRESS': JSON.stringify(contract ? contract.address : ''),
+        'CONTRACT_ADDRESS': JSON.stringify(address || ''),
         'WS_ENDPOINT': JSON.stringify(networkConfig.wsEndpoint),
         'CONFIDENTIAL_CONTRACT': confidential
       }),

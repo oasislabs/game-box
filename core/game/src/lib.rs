@@ -5,14 +5,14 @@ extern crate serde_json;
 #[macro_use]
 extern crate quick_error;
 
-extern crate game_engine;
+extern crate oasis_game_core;
 #[macro_use]
-extern crate game_engine_derive;
+extern crate oasis_game_core_derive;
 
 use serde_json::Value;
 use std::error::Error;
-use game_engine::{*, Game as InnerGame};
-use game_engine_derive::{flow, moves};
+use oasis_game_core::{*, Game as InnerGame};
+use oasis_game_core_derive::{flow, moves};
 
 /// Error types.
 quick_error! {
@@ -31,6 +31,13 @@ pub type Cells = [i32; 9];
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct State {
     pub cells: Cells
+}
+impl Default for State {
+    fn default() -> Self {
+        State {
+            cells: [-1; 9]
+        }
+    }
 }
 
 fn is_victory (cells: Cells) -> Option<[usize; 3]> {
@@ -66,7 +73,7 @@ fn is_victory (cells: Cells) -> Option<[usize; 3]> {
 /// Define your moves as methods in this trait.
 #[moves]
 trait Moves {
-    fn click_cell(state: &mut UserState<State>, args: &Option<Value>)
+    fn click_cell(state: &mut UserState<State>, player_id: u16, args: &Option<Value>)
                 -> Result<(), Box<Error>> {
         if let Some(value) = args {
             let id = value.as_array()
@@ -90,10 +97,8 @@ trait Moves {
 /// Define the game flow.
 #[flow]
 trait Flow {
-    fn initial_state(&self) -> State {
-        State {
-            cells: [-1; 9]
-        }
+    fn initial_state(&self, seed: Option<u128>) -> State {
+        Default::default()
     }
 
     fn end_turn_if(&self, _: &UserState<State>) -> bool {

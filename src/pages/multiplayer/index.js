@@ -6,82 +6,149 @@
  * https://opensource.org/licenses/MIT.
  */
 
-// React-specific imports
-import Async from 'react-promise';
-import React from 'react';
-import { render } from 'react-dom';
+import Async from 'react-promise'
+import React from 'react'
+import { render } from 'react-dom'
 
 // Client-side WASM imports.
-import bindingsPromise from '../../../core/client';
-import createProxyBuilder from 'oasis-game-client-proxy';
+import bindingsPromise from '../../../core/client'
+import createProxyBuilder from 'oasis-game-client-proxy'
 
 // Multiplayer game imports.
-import { GameWrapper, Client } from 'oasis-game-components';
-import { Game, GameServer } from 'oasis-game-client';
+import { GameWrapper, Client, WalletManagerView } from 'oasis-game-components'
+import { Game, GameServer } from 'oasis-game-client'
 import Web3 from 'web3'
+import codecs from 'codecs'
 
 // Game component imports.
-import Board from '../../components/board';
+import Board from '../../components/board'
 
-const Multiplayer = () => {
-  // TODO: Better way to get game parameters.
-  let splitUrl = window.location.pathname.split('/');
-  let gameId = +splitUrl[2];
+// Transfer all funds from the current wallet to the new one.
+async function transferFunds (existingGame, newPrivateKey, web3c) {
+  let { address: existingAddress } = existingGame.getAccount()
+  let newAccount = web3c.eth.accounts.privateKeyToAccount(newPrivateKey)
 
-  // TODO: Extract this into a separate JS wallet manager.
-  // The all-caps fields are injected by Webpack during the build.
-  let eventsWeb3 = new Web3(new Web3.providers.WebsocketProvider(WS_ENDPOINT));
+  let balance = await web3c.eth.getBalance(newAccount.address)
+  
+  let gas = 3000
+  let gasPrice = 1000000000
+  let value = balance - (gas * gasPrice)
 
-  let createGame = async function () {
-    window.web3 = new Web3(ethereum);
-    await ethereum.enable();
-    let server = new GameServer(CONTRACT_ADDRESS, {
-      web3: web3,
-      eventsWeb3: eventsWeb3
-    });
-    let game = new Game(server, gameId);
-    return game.ready();
+  if (value <= 0) return
+
+  let { rawTransaction } =  await newAccount.signTransaction({
+    from: newAccount.address,
+    to: existingAddress,
+    value,
+    gas,
+    gasPrice
+  })
+  return web3c.eth.sendSignedTransaction(rawTransaction)
+}
+
+class Multiplayer extends React.Component {
+  constructor (props) {
+    super(props)
+    this.state = {
+      web3c: null,
+      game: null,
+      proxy: null,
+      token: null
+    }
   }
 
-  let proxyPromise = Promise.all([
-    bindingsPromise,
-    createGame()
-  ]).then(async ([bindings, game]) => {
-    let builder = createProxyBuilder(bindings);
-    let proxy = await builder([1, 2], game, game.playerId).ready();
-    return [proxy, game];
-  });
+  async componentDidMount () {
+    let params = new URLSearchParams(document.location.search.substring(1)) 
+    let gameId = params.get('gameId')
+    let rawToken = params.get('token')
 
-  let PlayerComponent = (props) => {
-    let proxy = props.proxy
-    let game = props.game
+    if (rawToken) {
+      var tokenInfo = codecs('json').decode(Buffer.from(rawToken, 'base64'))
+      var newPrivateKey = tokenInfo.privateKey
+      var token = Buffer.from(tokenInfo.token, 'base64')
+    }
 
-    let playerId = game.playerId
-    let Player = Client({
-      board: Board,
+    let Web3c = require('web3c')
+    await Web3c.Promise
+
+    let web3c = new Web3c(WS_ENDPOINT)
+
+    let game = await this.createGame(gameId, web3c, web3c, newPrivateKey)
+    let proxy = await this.createProxy(game)
+    this.setState({
+      game,
       proxy,
-      playerId,
-      players: [1, 2],
-      multiplayer: game,
-      debug: true
-    });
+      web3c,
+      token,
+    })
+  }
+
+  async createGame (gameId, web3c, eventsWeb3c, newPrivateKey) {
+    let oldPrivateKey = GameServer.loadKey()
+    let server = new GameServer(CONTRACT_ADDRESS, {
+      privateKey: oldPrivateKey,
+      web3c,
+      eventsWeb3c,
+      confidential: CONFIDENTIAL_CONTRACT
+    })
+
+    await server.ready()
+    if (oldPrivateKey && newPrivateKey && oldPrivateKey !== newPrivateKey) {
+      await transferFunds(server, newPrivateKey, web3c)
+    }
+    await server.persistKey()
+
+    let account = server.getAccount()
+    await web3c.eth.getBalance(account.address)
+
+    return new Game(server, gameId)
+  }
+
+  async createProxy (game) {
+    let bindings = await bindingsPromise
+    let builder = createProxyBuilder(bindings)
+    let seed = Math.floor(Math.random() * 100000);
+    return builder([1, 2], game, game.playerId, seed).ready();
+  }
+
+  render () {
+    let PlayerComponent = (props) => {
+      let proxy = props.proxy
+      let game = props.game
+
+      let playerId = game.playerId
+      let Player = Client({
+        board: Board,
+        proxy,
+        playerId,
+        players: [1, 2],
+        multiplayer: game,
+        debug: false
+      });
+
+      return (
+        <div className="code flex flex-column w-100 h-100 items-center bg-light-gray">
+          <Player />
+        </div>
+      );
+    }
+
+    let wallet = this.state.web3c ? <WalletManagerView web3c={this.state.web3c} metamask={web3} /> : ''
 
     return (
-      <div style={{ padding: 50 }}>
-        <h1>Two Players (On-Chain)</h1>
-        <Player />
+      <div class="code flex flex-column w-100 h-100 items-center">
+        <GameWrapper token={this.state.token} proxy={this.state.proxy} game={this.state.game}>
+          <PlayerComponent />
+        </GameWrapper>
+        <div class="mt3">
+          {wallet} 
+        </div>
       </div>
-    );
+    )
   }
-
-  return (
-    <GameWrapper proxyPromise={proxyPromise}>
-      <PlayerComponent />
-    </GameWrapper>
-  );
 }
 
 render(
-    <Multiplayer />,
-    document.getElementById('app')
-);
+  <Multiplayer />,
+  document.getElementById('app')
+)

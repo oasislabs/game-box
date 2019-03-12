@@ -22,11 +22,11 @@ const Singleplayer = () => {
   let proxiesPromise = async (resolve, reject) => {
     let bindings = await bindingsPromise;
     let proxyBuilder = createProxyBuilder(bindings);
-
+    let seed = Math.floor(Math.random() * 100000);
     return Promise.all([
-      proxyBuilder([1,2], null, 1).ready(),
-      proxyBuilder([1,2], null, 2).ready()
-    ])
+      proxyBuilder([1,2], null, 1, seed).ready(),
+      proxyBuilder([1,2], null, 2, seed).ready()
+    ]);
   }
 
   return (
@@ -34,7 +34,6 @@ const Singleplayer = () => {
       // This simplifies local testing.
       let tee = (function (d1, d2) {
         return (action) => {
-          console.log('DISPATCHING TO BOTH PROXIES: action: ', action)
           d1(action);
           d2(action);
         }
@@ -58,12 +57,11 @@ const Singleplayer = () => {
         playerId: 2,
         players: [1, 2],
         multiplayer: null,
-        debug: false
+        debug: true
       });
 
       return (
-        <div style={{ padding: 50 }}>
-          <h1>Two Players (Local)</h1>
+        <div className="code flex flex-column w-100 h-100 items-center bg-light-gray">
           <PlayerOne />
           <br/>
           <PlayerTwo />

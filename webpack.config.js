@@ -5,19 +5,23 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const truffleConfig = require('./truffle-config.js')
 const pages = fs.readdirSync('./src/pages').filter(name => !name.startsWith('.'))
 
-// The number of HD Wallet accounts to inject into the page.
-const NUM_ACCOUNTS = 5
-
-module.exports = function (web3, network, artifacts) {
+module.exports = function (web3, network, artifacts, confidential) {
   let networkConfig = truffleConfig.config[network]
 
-  let contract = artifacts.require('GameServerContract')
+  try {
+    var contract = artifacts.require('GameServerContract')
+    var address = contract.address
+  } catch (err) {
+    console.warn('Warning: No network deployment was detected, so only building singleplayer mode.')
+  }
+
+  let entry = !contract ? { singleplayer : './src/pages/singleplayer/index.js' } : pages.reduce((acc, page) => {
+    acc[page] = `./src/pages/${page}/index.js`;
+    return acc;
+  }, {})
 
   return {
-    entry: pages.reduce((acc, page) => {
-      acc[page] = `./src/pages/${page}/index.js`;
-      return acc;
-    }, {}),
+    entry,
     module: {
       rules: [
         {
@@ -29,7 +33,24 @@ module.exports = function (web3, network, artifacts) {
           test: /\.css$/,
           exclude: /node_modules/,
           use: [ 'style-loader', 'css-loader' ]
-        }
+        },
+        {
+          test: /\.(png|jpg|gif)$/,
+          use: [
+           'file-loader'
+          ]
+        },
+         {
+          test: /\.(svg)$/,
+          use: [
+            {
+              loader: 'file-loader',
+              options: {
+                name: '[name].[ext]'
+              }
+            }
+          ]
+         }
       ]
     },
     resolve: {
@@ -37,13 +58,14 @@ module.exports = function (web3, network, artifacts) {
     },
     output: {
       path: __dirname + '/dist',
-      publicPath: '/',
+      publicPath: './',
       filename: '[name].bundle.js'
     },
     plugins: [
       new webpack.DefinePlugin({
-        'CONTRACT_ADDRESS': JSON.stringify(contract.address),
-        'WS_ENDPOINT': JSON.stringify(networkConfig.wsEndpoint)
+        'CONTRACT_ADDRESS':  JSON.stringify(address || ''),
+        'WS_ENDPOINT': JSON.stringify(networkConfig.wsEndpoint),
+        'CONFIDENTIAL_CONTRACT': confidential
       }),
       new webpack.HotModuleReplacementPlugin(),
       ...pages.map(page => new HtmlWebpackPlugin({
@@ -56,6 +78,11 @@ module.exports = function (web3, network, artifacts) {
       }),
       new HtmlWebpackPlugin({
         title: 'Oasis Game'
+      }),
+      new webpack.NormalModuleReplacementPlugin(/env/, function(resource) {
+	if (resource.request === 'env') {
+	  resource.request = '../wasm32-shim'
+	}
       })
     ],
     devtool: 'cheap-eval-source-map',

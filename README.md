@@ -1,5 +1,5 @@
 # Making Games with Oasis
-This example project demonstrates how to build a turn-based game, Tic-Tac-Toe, on the Oasis testnet. Our framework (inspired by [boardgame.io](https://github.com/nicolodavis/boardgame.io) lets you define a core set of game rules in Rust that can be run locally for in-browser testing, then deployed the Oasis testnet for live games, all without needing to touch WebAssembly or web3 (though under-the-hood we use both).
+This example project demonstrates how to build a turn-based game, Tic-Tac-Toe, on the Oasis devnet. Our framework (inspired by [boardgame.io](https://github.com/nicolodavis/boardgame.io) lets you define a core set of game rules in Rust that can be run locally for in-browser testing, then deployed the Oasis testnet for live games, all without needing to touch WebAssembly or web3 (though under-the-hood we use both).
 
 Here are the interesting bits of this Truffle box:
 1. `core/game` is where your game logic is defined. This `core` module is imported into a browser-compatible WebAssembly module in `core/client`, and an Oasis-compatible smart contract in `contracts/server`.
@@ -14,9 +14,9 @@ This Truffle Box is designed to run from within your Contract Kit container. If 
    * `docker run -v "$PWD":/project -p8545:8545 -p8546:8546 -p8080:8080 -it oasislabs/contract-kit:latest /bin/bash`
    
 The remaining steps are meant to be run in a shell inside your new `oasislabs/contract-kit` container.
-1. Install `wasm-bindgen`: `cargo install wasm-bindgen-cli` (this can take some time).
+1. Install `wasm-bindgen`: `cargo install wasm-bindgen-cli --vers 0.2.37` (this can take some time).
 2. Create a directory for your new project: `mkdir (project name) && cd (project name)`
-2. Unbox this repo: `truffle unbox oasis-game-framework/game-box`
+2. Unbox this repo: `truffle unbox oasislabs/game-box`
 3. (optionally) Start a local Parity instance for debugging: `./scripts/start-parity.sh`
    * (Note: This will launch Parity with very loose network settings -- feel free to restrict those to localhost if you don't want to test with other machines on your local network)
 
@@ -39,7 +39,7 @@ Move methods are entirely user-defined, and you can have as many as you like. Fo
 ```rs
 #[moves]
 trait Moves {
-  fn click_cell(cell: &mut UserState<State>, args: &Option<Value>) -> Result<...> {
+  fn click_cell(cell: &mut UserState<State>, player_id: u16 args: &Option<Value>) -> Result<...> {
     ...
   }
 }
@@ -59,7 +59,7 @@ class Board extends React.Component {
 
 Since Rust is statically-typed, and move methods are user-defined, we cannot know in advance how many arguments you'll need to pass from JS into your move methods. For this reason, all move methods take an optional, untyped, JSON array of arguments as input (`args: &Option<Value>`). It's up to you to complete the deserialization step inside your own code, so you can assign a user-defined type to these inputs, i.e:
 ```
-fn click_cell(state: &mut UserState<State>, args: &Option<Value>)
+fn click_cell(state: &mut UserState<State>, player_id: u16 args: &Option<Value>)
             -> Result<(), Box<Error>> {
     if let Some(value) = args {
         let id = value.as_array()
@@ -73,7 +73,7 @@ fn click_cell(state: &mut UserState<State>, args: &Option<Value>)
 
 Once your inputs are parsed, you can then mutate the state you're given with whatever changes are necessary. In Tic-Tac-Toe, we update a cell with the player ID of the active player. Here's how all the above steps come together to make a complete move method.
 ```
-fn click_cell(state: &mut UserState<State>, args: &Option<Value>)
+fn click_cell(state: &mut UserState<State>, player_id: u16, args: &Option<Value>)
             -> Result<(), Box<Error>> {
     if let Some(value) = args {
         let id = value.as_array()
@@ -97,6 +97,7 @@ fn click_cell(state: &mut UserState<State>, args: &Option<Value>)
 #### Flow
 Flow methods are more constained than move methods. The game engine exposes a handful of hooks that you can implement inside your Flow trait to control how a game evolves over time. As an example, in Tic-Tac-Toe, there are only three components to the game flow:
 1. The initial state should be an empty grid.
+  * Note: `initial_state` gives you a `seed`, which you can use to construct a pseudo-random number generator. You'll only care about this if you're interested in making a game that uses randomness.
 2. Turns should alternate.
 2. When a victory condition is met, the game should end.
 
@@ -104,7 +105,7 @@ We express those components in the following Flow trait:
 ```rs
 #[flow]
 trait Flow {
-    fn initial_state(&self) -> State {
+    fn initial_state(&self, seed: Option<u128>) -> State {
         State {
             cells: [-1; 9]
         }
@@ -138,7 +139,7 @@ trait Flow {
 
 The `end_game_if` method has a trickier interface, since it's responsible for assigning a value to the final game state (which are be useful for bots, more docs forthcoming). Additionally, the final game state is entirely user-defined, and thus must also be stored as a `Value` (an arbitrary JSON object).
 
-Here's a complete list of available flow methods. For complete signatures, take a look [here](https://github.com/oasis-game-framework/oasis-game-framework/blob/1.0.0-alpha/engine/src/flow.rs):
+Here's a complete list of available flow methods. For complete signatures, take a look [here](https://github.com/oasislabs/oasis-game-core/blob/1.0.0-alpha/engine/src/flow.rs):
 1. `initial_state` - Generates the first game state, before any moves have been made.
 2. `end_turn_if` (default `true`) - Given a game state, returns true if the active player should transition to the next player in the `turn_order`
 3. `end_game_if` - Given a game state, has the game completed? If so, return a `gameover` value.
@@ -148,14 +149,15 @@ Here's a complete list of available flow methods. For complete signatures, take 
 7. `can_make_move` - Is the given player allowed to make a move? This is useful for games where many players can make moves at the same time (i.e. draw phases of card games).
 8. `allowed_moves` - List the move *types* (i.e. "click_cell") that the given player is allowed to make. This does *not* enumerate all possible moves.
 9. `optimistic_update` - Should a given game event be executed client-side and on-chain concurrently? In perfect-information games, this can give latency benefits.
+10. `get_current_players` - For games that require more sophisitcated turn orders (beyond Round Robin, which is the default), you can use this method to return a `Vec` of players that are allowed to make moves in the current turn. For an example of a game that uses this, check out our [Poker demo](https://github.com/oasislabs/poker-demo).
 
 You're free to implement as few or as many of these as you like. In the future, we'll be adding more opinionated flow methods to make it easier to make more complicated games (we currently only have a small subset of those available in boardgame.io, for example).
 
 ## Building + Migrating
 Building is separated into three stages, each with a corresponding build script. From the repo root:
 1. Build Rust dependencies: `./scripts/build-crates.sh`
-2. Migrate contracts onto a testnet: `truffle migrate --network (your network)`
-3. Build frontend components: `truffle exec ./scripts/build-frontend.js --network (your network)`
+2. Migrate contracts onto a testnet: `truffle migrate --network oasis`
+3. Build frontend components: `truffle exec ./scripts/build-frontend.js --network (your network) --confidential true`
 
 It's important that (3) always be performed after (2), and with `truffle exec`, because it depends on the address of your deployed contract, which Truffle automatically determines.
 
@@ -178,11 +180,11 @@ This mode launches a local game server on port 8080 (note: this is an HTTP serve
 gateway -- there is no blockchain involved in this game mode).
 
 ### Multiplayer
-To play a complete end-to-end, on-chain game with friends, there are a few more steps:
-1. Create a new game on the testnet: `truffle exec ./scripts/create.js --network (your network) --players (address1),(address2)...`
-   * (The addresses you list will be assigned player IDs in order, so `address1` becomes Player 1, and so on. Make sure these addresses have already been funded!)
+To play a complete end-to-end, on-chain game with friends, there are a few more steps. We're working on a browser-based game creator that will make it super easy to launch games and share game links with your friends. In the meantime, this box comes bundled with a game creator CLI tool that you can use for testing:
+1. To create a new game on the Oasis devnet: `truffle exec ./scripts/create.js`
+   * This script will generate a series of "magic" links, one for each player. 
  2. `npm start` (you can do this in another shell)
- 3.  Navigate to `localhost:8080/multiplayer/(game id)`
+ 3.  Open up the magic links in your browser. Each player must currently use a different Oasis account, which means you should open these links in separate private windows (since the accounts are stored in your browser's localStorage). 
  
 If your players are using different computers, make sure that *both* the web server *and* the testnet are accessible to all parties -- this might require updating the networking configuration in the `config` section of `truffle-config.js`.
 

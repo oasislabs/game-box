@@ -1,5 +1,5 @@
 # Making Games with Oasis
-This example project demonstrates how to build a turn-based game, Tic-Tac-Toe, on the Oasis devnet. Our framework (inspired by [boardgame.io](https://github.com/nicolodavis/boardgame.io) lets you define a core set of game rules in Rust that can be run locally for in-browser testing, then deployed the Oasis testnet for live games, all without needing to touch WebAssembly or web3 (though under-the-hood we use both).
+This example project demonstrates how to build a turn-based game, Tic-Tac-Toe, on the Oasis devnet. Our Gaming SDK (inspired by [boardgame.io](https://github.com/nicolodavis/boardgame.io) lets you define a core set of game rules in Rust that can be run locally for in-browser testing, then deployed the Oasis testnet for live games, all without needing to touch WebAssembly or web3 (though under-the-hood we use both).
 
 Here are the interesting bits of this Truffle box:
 1. `core/game` is where your game logic is defined. This `core` module is imported into a browser-compatible WebAssembly module in `core/client`, and an Oasis-compatible smart contract in `contracts/server`.
@@ -11,7 +11,7 @@ Here are the interesting bits of this Truffle box:
 This Truffle Box is designed to run from within your Contract Kit container. If you haven't already, pull the `oasislabs/contract-kit` image from Docker Hub.
 
 1. Launch your Contract Kit container: 
-   * `docker run -v "$PWD":/project -p8545:8545 -p8546:8546 -p8080:8080 -it oasislabs/contract-kit:latest /bin/bash`
+   * `docker run -v "$PWD":/project -it oasislabs/contract-kit:latest /bin/bash`
    
 The remaining steps are meant to be run in a shell inside your new `oasislabs/contract-kit` container.
 1. Install `wasm-bindgen`: `cargo install wasm-bindgen-cli --vers 0.2.37` (this can take some time).
@@ -24,7 +24,7 @@ The remaining steps are meant to be run in a shell inside your new `oasislabs/co
 If you want to deploy on Oasis, make sure your mnemonic is defined in `secrets.json`. This file is not tracked by your repo, but it's imported by Truffle during migration and frontend compilation. The default Contract Kit mnemonic is already there, ready to use.
 
 ## Creating your game
-Once this example has been unboxed, you're ready to start building your game. This section is a crash-course for getting started quickly; for a thorough overview the architecture of the game framework, see __(insert detailed docs link here)__.
+Once this example has been unboxed, you're ready to start building your game. This section is a crash-course for getting started quickly; for a thorough overview the architecture of the game framework, check out of [Gaming SDK documentation](https://docs.oasiscloud.io/en/latest/gaming-sdk/).
 
 TL;DR: In most cases, the only files you'll need to edit are `core/game/src/lib.rs` (with your move and flow functions) and `src/components/board.js` (with your game UI) -- everything else should be done for you!
 
@@ -173,7 +173,7 @@ This box currently contains the following game modes:
 ### Singleplayer
 To debug your game in singleplayer mode, first complete the installation steps above, then perform
 the following steps:
-1. `npm start` (you can do this in another shell)
+1. `npm start` (you can do this in another shell, outside of Contract Kit)
 2. Navigate to `localhost:8080/singleplayer` in your browser (or whichever port you've chosen to use)
 
 This mode launches a local game server on port 8080 (note: this is an HTTP server, not an Ekiden 
@@ -183,7 +183,7 @@ gateway -- there is no blockchain involved in this game mode).
 To play a complete end-to-end, on-chain game with friends, there are a few more steps. We're working on a browser-based game creator that will make it super easy to launch games and share game links with your friends. In the meantime, this box comes bundled with a game creator CLI tool that you can use for testing:
 1. To create a new game on the Oasis devnet: `truffle exec ./scripts/create.js --num-players (number of players)`
    * This script will generate a series of "magic" links, one for each player. 
- 2. `npm start` (you can do this in another shell)
+ 2. `npm start` (you can do this in another shell, outside of Contract Kit)
  3.  Open up the magic links in your browser. Each player must currently use a different Oasis account, which means you should open these links in separate private windows (since the accounts are stored in your browser's localStorage). 
  
 If your players are using different computers, make sure that *both* the web server *and* the testnet are accessible to all parties -- this might require updating the networking configuration in the `config` section of `truffle-config.js`.

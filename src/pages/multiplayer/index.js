@@ -133,10 +133,10 @@ class Multiplayer extends React.Component {
       );
     }
 
-    let wallet = this.state.web3c ? <WalletManagerView web3c={this.state.web3c} metamask={web3} /> : ''
+    let wallet = this.state.web3c ? <WalletManagerView web3c={this.state.web3c} metamask={window.web3} /> : ''
 
     return (
-      <div class="code flex flex-column w-100 h-100 items-center">
+      <div class="code flex flex-column w-100 h-100 items-center mt5">
         <GameWrapper token={this.state.token} proxy={this.state.proxy} game={this.state.game}>
           <PlayerComponent />
         </GameWrapper>

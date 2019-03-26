@@ -174,10 +174,15 @@ This box currently contains the following game modes:
 To debug your game in singleplayer mode, first complete the installation steps above, then perform
 the following steps:
 1. `npm start` (you can do this in another shell, outside of Contract Kit)
-2. Navigate to `localhost:8080/singleplayer` in your browser (or whichever port you've chosen to use)
+2. Navigate to `http://localhost:8080/singleplayer` in your browser (or whichever port you've chosen to use)
 
 This mode launches a local game server on port 8080 (note: this is an HTTP server, not an Ekiden 
 gateway -- there is no blockchain involved in this game mode).
+
+#### Dev Mode
+If you'd like to be able to iterate rapidly, then you can launch the dev server, which will automatically reload your UI whenever your frontend code changes.
+1. `npm run dev` will start a server listening on `http://localhost:8080`
+2. Navigate to `http://localhost:8080/singleplayer.html`
 
 ### Multiplayer
 To play a complete end-to-end, on-chain game with friends, there are a few more steps. We're working on a browser-based game creator that will make it super easy to launch games and share game links with your friends. In the meantime, this box comes bundled with a game creator CLI tool that you can use for testing:

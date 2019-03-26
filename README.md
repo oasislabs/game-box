@@ -181,7 +181,7 @@ gateway -- there is no blockchain involved in this game mode).
 
 ### Multiplayer
 To play a complete end-to-end, on-chain game with friends, there are a few more steps. We're working on a browser-based game creator that will make it super easy to launch games and share game links with your friends. In the meantime, this box comes bundled with a game creator CLI tool that you can use for testing:
-1. To create a new game on the Oasis devnet: `truffle exec ./scripts/create.js --num-players (number of players)`
+1. To create a new game on the Oasis devnet: `truffle exec ./scripts/create.js --network oasis --num-players (number of players)`
    * This script will generate a series of "magic" links, one for each player. 
  2. `npm start` (you can do this in another shell, outside of Contract Kit)
  3.  Open up the magic links in your browser. Each player must currently use a different Oasis account, which means you should open these links in separate private windows (since the accounts are stored in your browser's localStorage). 

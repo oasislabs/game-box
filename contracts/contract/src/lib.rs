@@ -25,9 +25,9 @@ trait GameServerContract {
         self.NewGame(id, _tokens);
     }
 
-    fn ready(&mut self, _game_id: u64, token: Vec<u8>, _entropy: Vec<u8>) -> u64 {
+    fn ready(&mut self, _game_id: u64, _token: Vec<u8>, _key: [u8; 16], _iv: [u8; 16], _entropy: Vec<u8>) -> u64 {
         let mut server = ServerFactory::create();
-        let (player_id, started) = server.ready(_game_id, token, &mut _entropy.clone()).expect("Could not set ready status");
+        let (player_id, started) = server.ready(_game_id, _token, _key, _iv, &mut _entropy.clone()).expect("Could not set ready status");
         if started {
             self.GameStarted(_game_id);
         }
@@ -36,9 +36,10 @@ trait GameServerContract {
 
     fn sendAction(&mut self, _game_id: u64,  _player_id: u64, _game_move: Vec<u8>) {
         let mut server = ServerFactory::create();
-        server.handle_action(_game_id, _player_id, _game_move);
-        // Web3 still can't properly handle empty events.
-        self.GameEvent(_game_id, _game_id);
+        let player_updates = server.handle_action(_game_id, _player_id, _game_move).unwrap();
+        for (event_id, player_id, state) in player_updates.iter() {
+            self.GameEvent(_game_id, *player_id as u64, *event_id, state.to_vec());
+        }
     }
 
     #[constant]
@@ -61,7 +62,7 @@ trait GameServerContract {
     }
 
     #[event]
-    fn GameEvent(&mut self, indexed_id: u64, _id: u64);
+    fn GameEvent(&mut self, indexed_id: u64, indexed_player_id: u64, _event_id: u64, _state: Vec<u8>);
     #[event]
     fn GameState(&mut self, _state: Vec<u8>);
     #[event]

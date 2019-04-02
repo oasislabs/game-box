@@ -17,7 +17,8 @@ serde_derive = "1.0.70"
 
 # Core game logic dependencies
 oasis-game-core = "0.9.0"
-oasis-game-contract = "0.9.0"
+# oasis-game-contract = "0.9.0"
+oasis-game-contract = { path = "../../../oasis-game-framework/contract" }
 core = { path = "../../core/game" }
 
 [dependencies.owasm-std]

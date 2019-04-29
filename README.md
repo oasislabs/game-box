@@ -153,14 +153,13 @@ You're free to implement as few or as many of these as you like. In the future, 
 
 ## Building + Migrating
 Building is separated into three stages, each with a corresponding build script. 
-- If you want to deploy on your local development instance (`development`), make sure a local parity chain is running: `./scripts/start-parity.sh`
-   * (Note: This will launch Parity with very loose network settings -- feel free to restrict those to localhost if you don't want to test with other machines on your local network)
-- To deploy onto the Oasis devnet (`oasis`), make sure your mneumonic is defined in `secrets.json`.
+To deploy onto the Oasis devnet (`oasis`), make sure your mneumonic is defined in `secrets.json`.
+ * If you don't know what that is, please see our [Truffle docs](https://docs.oasiscloud.io/en/latest/using-truffle/). 
 
 From the repo root:
 1. Build Rust dependencies: `./scripts/build-crates.sh`
-2. Migrate contracts onto a testnet: `truffle migrate --network development`
-3. Build frontend components: `truffle exec ./scripts/build-frontend.js --network development --confidential true`
+2. Migrate contracts onto the Oasis devnet (make sure your mneumonic is defined in `secrets.json`): `truffle migrate --network oasis`
+3. Build frontend components: `truffle exec ./scripts/build-frontend.js --network oasis --confidential true`
 
 It's important that (3) always be performed after (2), and with `truffle exec`, because it depends on the address of your deployed contract, which Truffle automatically determines.
 
@@ -191,7 +190,7 @@ If you'd like to be able to iterate rapidly, then you can launch the dev server,
 To play a complete end-to-end, on-chain game with friends, there are a few more steps. We're working on a browser-based game creator that will make it super easy to launch games and share game links with your friends. In the meantime, this box comes bundled with a game creator CLI tool that you can use for testing:
 1. To create a new game on the Oasis devnet: `truffle exec ./scripts/create.js --network oasis --num-players (number of players)`
    * This script will generate a series of "magic" links, one for each player. 
- 2. `npm start` (you can do this in another shell, outside of Contract Kit)
+ 2. `npm start` (check that your port mappings are configured properly, this should be done from within contract kit)
  3.  Open up the magic links in your browser. Each player must currently use a different Oasis account, which means you should open these links in separate private windows (since the accounts are stored in your browser's localStorage). 
  
 If your players are using different computers, make sure that *both* the web server *and* the testnet are accessible to all parties -- this might require updating the networking configuration in the `config` section of `truffle-config.js`.

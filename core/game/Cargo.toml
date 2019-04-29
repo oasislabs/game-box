@@ -16,5 +16,9 @@ oasis-game-core-derive = "0.9.0"
 version = "0.6.4"
 features = ["wasm-bindgen"]
 
+[dependencies.wasm-bindgen]
+version = "= 0.2.37"
+features = ["serde-serialize"]
+
 [lib]
 crate-type = ["lib"]

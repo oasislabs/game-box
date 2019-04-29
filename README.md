@@ -10,8 +10,8 @@ Here are the interesting bits of this Truffle box:
 ## Installation
 This Truffle Box is designed to run from within your Contract Kit container. If you haven't already, pull the `oasislabs/contract-kit` image from Docker Hub.
 
-1. Launch your Contract Kit container: 
-   * `docker run -v "$PWD":/project -it oasislabs/contract-kit:latest /bin/bash`
+1. Launch your Contract Kit container with port mappings enabled: 
+   * `docker run -v "$PWD":/project -it -p8545:8545 -p8546:8546 -p8080:8080 oasislabs/contract-kit:latest /bin/bash`
    
 The remaining steps are meant to be run in a shell inside your new `oasislabs/contract-kit` container.
 1. Install `wasm-bindgen`: `cargo install wasm-bindgen-cli --vers 0.2.37` (this can take some time).
@@ -176,8 +176,8 @@ This box currently contains the following game modes:
 ### Singleplayer
 To debug your game in singleplayer mode, first complete the installation steps above, then perform
 the following steps:
-1. `npm start` (you can do this in another shell, outside of Contract Kit)
-2. Navigate to `http://localhost:8080/singleplayer.html` in your browser (or whichever port you've chosen to use)
+1. `npm start` (check that your port mappings are configured properly, this should be done from within contract kit)
+2. Navigate to `http://localhost:8080/singleplayer.html` in your browser
 
 This mode launches a local game server on port 8080 (note: this is an HTTP server, not an Ekiden 
 gateway -- there is no blockchain involved in this game mode).

@@ -144,9 +144,9 @@ Here's a complete list of available flow methods. For complete signatures, take 
 4. `on_turn_begin` - Gives you the option to update the state at the beginning of every turn.
 5. `on_turn_end` - Gives you the option to update the state at the end of every turn.
 6. `on_move` - Gives you the option to update the state after every move.
-7. `can_make_move` - Is the given player allowed to make a move? This is useful for games where many players can make moves at the same time (i.e. draw phases of card games).
-8. `allowed_moves` - List the move *types* (i.e. "click_cell") that the given player is allowed to make. This does *not* enumerate all possible moves.
-9. `optimistic_update` - Should a given game event be executed client-side and on-chain concurrently? In perfect-information games, this can give latency benefits.
+7. `allowed_moves` - List the move *types* (i.e. "click_cell") that the given player is allowed to make. This does *not* enumerate all possible moves.
+8. `optimistic_update` - Should a given game event be executed client-side and on-chain concurrently? In perfect-information games, this can give latency benefits.
+9. `player_filter` - What state should each player be allowed to see? Return a filtered version of the game state for each given player. This is used for keeping parts of the game state secret. For an example of this, check out our [Battleship demo](https://github.com/oasislabs/battleship-demo).
 10. `get_current_players` - For games that require more sophisitcated turn orders (beyond Round Robin, which is the default), you can use this method to return a `Vec` of players that are allowed to make moves in the current turn. For an example of a game that uses this, check out our [Poker demo](https://github.com/oasislabs/poker-demo).
 
 You're free to implement as few or as many of these as you like. In the future, we'll be adding more opinionated flow methods to make it easier to make more complicated games (we currently only have a small subset of those available in boardgame.io, for example).

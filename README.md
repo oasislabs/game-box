@@ -17,8 +17,6 @@ The remaining steps are meant to be run in a shell inside your new `oasislabs/co
 1. Install `wasm-bindgen`: `cargo install wasm-bindgen-cli --vers 0.2.37` (this can take some time).
 2. Create a directory for your new project: `mkdir (project name) && cd (project name)`
 2. Unbox this repo: `truffle unbox oasislabs/game-box`
-3. (optionally) Start a local Parity instance for debugging: `./scripts/start-parity.sh`
-   * (Note: This will launch Parity with very loose network settings -- feel free to restrict those to localhost if you don't want to test with other machines on your local network)
 
 ### Specifying credentials
 If you want to deploy on Oasis, make sure your mnemonic is defined in `secrets.json`. This file is not tracked by your repo, but it's imported by Truffle during migration and frontend compilation. The default Contract Kit mnemonic is already there, ready to use.
@@ -154,10 +152,15 @@ Here's a complete list of available flow methods. For complete signatures, take 
 You're free to implement as few or as many of these as you like. In the future, we'll be adding more opinionated flow methods to make it easier to make more complicated games (we currently only have a small subset of those available in boardgame.io, for example).
 
 ## Building + Migrating
-Building is separated into three stages, each with a corresponding build script. From the repo root:
+Building is separated into three stages, each with a corresponding build script. 
+- If you want to deploy on your local development instance (`development`), make sure a local parity chain is running: `./scripts/start-parity.sh`
+   * (Note: This will launch Parity with very loose network settings -- feel free to restrict those to localhost if you don't want to test with other machines on your local network)
+- To deploy onto the Oasis devnet (`oasis`), make sure your mneumonic is defined in `secrets.json`.
+
+From the repo root:
 1. Build Rust dependencies: `./scripts/build-crates.sh`
-2. Migrate contracts onto a testnet: `truffle migrate --network oasis`
-3. Build frontend components: `truffle exec ./scripts/build-frontend.js --network (your network) --confidential true`
+2. Migrate contracts onto a testnet: `truffle migrate --network development`
+3. Build frontend components: `truffle exec ./scripts/build-frontend.js --network development --confidential true`
 
 It's important that (3) always be performed after (2), and with `truffle exec`, because it depends on the address of your deployed contract, which Truffle automatically determines.
 
@@ -174,7 +177,7 @@ This box currently contains the following game modes:
 To debug your game in singleplayer mode, first complete the installation steps above, then perform
 the following steps:
 1. `npm start` (you can do this in another shell, outside of Contract Kit)
-2. Navigate to `http://localhost:8080/singleplayer` in your browser (or whichever port you've chosen to use)
+2. Navigate to `http://localhost:8080/singleplayer.html` in your browser (or whichever port you've chosen to use)
 
 This mode launches a local game server on port 8080 (note: this is an HTTP server, not an Ekiden 
 gateway -- there is no blockchain involved in this game mode).
